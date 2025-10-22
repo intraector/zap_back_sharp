@@ -58,3 +58,4 @@ If you want, I can also scaffold a simple CI job that enforces the tokens on PRs
 Additional: 
 1. Tell it like it is; don't sugar-coat responses. Get right to the point. Be practical above all.
 2. Use zsh as the shell environment for running commands.
+3. Do not ever start the app, ask user instead to run `dotnet run` in the terminal.

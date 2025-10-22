@@ -36,6 +36,22 @@
 				"${workspaceFolder}/Zap.csproj"
 			],
 			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "(re)start-server",
+			"type": "shell",
+			"command": "zsh",
+			"args": [
+				"-lc",
+				"pkill -f 'Zap' || true; sleep 0.1; dotnet run --project ${workspaceFolder}/Zap.csproj"
+			],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": true
+			},
+			"problemMatcher": []
 		}
 	]
 }

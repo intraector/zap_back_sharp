@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using App.Data.Entities.CarDict;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
 namespace App.Features.CarDict.Repos
@@ -8,9 +9,11 @@ namespace App.Features.CarDict.Repos
 	public class MySqlCarDictRepo : ICarDictRepo
 	{
 		private readonly string _conn;
-		public MySqlCarDictRepo(IConfiguration cfg)
+		private readonly ILogger<MySqlCarDictRepo> _logger;
+		public MySqlCarDictRepo(IConfiguration cfg, ILogger<MySqlCarDictRepo> logger)
 		{
 			_conn = cfg.GetConnectionString("MySql") ?? string.Empty;
+			_logger = logger;
 		}
 
 		public List<BrandEntity> FetchBrands(string query, int pageNumber, int pageSize)
@@ -33,8 +36,8 @@ namespace App.Features.CarDict.Repos
 			}
 			catch (MySqlConnector.MySqlException ex)
 			{
-				try { System.Console.Error.WriteLine($"[{System.DateTime.UtcNow:O}] MySql error in FetchBrands: {ex}"); } catch { }
-				return list;
+				_logger.LogError(ex, "MySql error in FetchBrands (query={Query}, page={Page}, size={Size})", query, pageNumber, pageSize);
+				throw;
 			}
 			return list;
 		}
@@ -60,8 +63,8 @@ namespace App.Features.CarDict.Repos
 			}
 			catch (MySqlConnector.MySqlException ex)
 			{
-				try { System.Console.Error.WriteLine($"[{System.DateTime.UtcNow:O}] MySql error in FetchModels: {ex}"); } catch { }
-				return list;
+				_logger.LogError(ex, "MySql error in FetchModels (brandId={BrandId}, query={Query}, page={Page}, size={Size})", brandId, query, pageNumber, pageSize);
+				throw;
 			}
 			return list;
 		}
@@ -94,8 +97,8 @@ namespace App.Features.CarDict.Repos
 			}
 			catch (MySqlConnector.MySqlException ex)
 			{
-				try { System.Console.Error.WriteLine($"[{System.DateTime.UtcNow:O}] MySql error in FetchBodies: {ex}"); } catch { }
-				return list;
+				_logger.LogError(ex, "MySql error in FetchBodies (modelId={ModelId}, generationId={GenerationId}, query={Query}, page={Page}, size={Size})", modelId, generationId, query, pageNumber, pageSize);
+				throw;
 			}
 			return list;
 		}
@@ -133,8 +136,11 @@ namespace App.Features.CarDict.Repos
 			}
 			catch (MySqlConnector.MySqlException ex)
 			{
-				try { System.Console.Error.WriteLine($"[{System.DateTime.UtcNow:O}] MySql error in FetchGenerations: {ex}"); } catch { }
-				return list;
+				// pn and ps are defined above; use their values for logging
+				var logPn = pageNumber.GetValueOrDefault(1);
+				var logPs = pageSize.GetValueOrDefault(20);
+				_logger.LogError(ex, "MySql error in FetchGenerations (modelId={ModelId}, query={Query}, page={Page}, size={Size})", modelId, query, logPn, logPs);
+				throw;
 			}
 			return list;
 		}
@@ -161,8 +167,8 @@ namespace App.Features.CarDict.Repos
 			}
 			catch (MySqlConnector.MySqlException ex)
 			{
-				try { System.Console.Error.WriteLine($"[{System.DateTime.UtcNow:O}] MySql error in FetchModifications: {ex}"); } catch { }
-				return list;
+				_logger.LogError(ex, "MySql error in FetchModifications (modelId={ModelId}, bodyId={BodyId}, query={Query}, page={Page}, size={Size})", modelId, bodyId, query, pageNumber, pageSize);
+				throw;
 			}
 			return list;
 		}
